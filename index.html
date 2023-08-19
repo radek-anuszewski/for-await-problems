@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>For await of in 2 scenarios</title>
+  <style>
+    body {
+      padding: 32px;
+      max-width: 360px;
+    }
+  </style>
+  <script type="module">
+    const button = document.querySelector("#run");
+    const earlier = document.querySelector("#earlier");
+    const dynamic = document.querySelector("#dynamic");
+
+    const delay = (number) => new Promise(resolve => setTimeout(() => resolve(`${number} run. `), number * 5000));
+
+    const createPromises = () => {
+      return [
+        delay(1),
+        delay(2),
+        delay(3),
+      ]
+    }
+
+    const runCreatedEarlier = async () => {
+      for await (const result of createPromises()) {
+        earlier.innerHTML += `${result} `;
+      }
+    }
+
+    const runCreatedDynamically = async () => {
+      const range = Array.from({length: 3}, (_, index) => index + 1);
+      for (const index of range) {
+        const result = await delay(index);
+        dynamic.innerHTML += `${result} `
+      }
+    }
+
+    button.addEventListener("click", async () => {
+      earlier.innerHTML = "";
+      dynamic.innerHTML = "";
+      runCreatedEarlier();
+      runCreatedDynamically();
+    })
+  </script>
+</head>
+<body>
+<main>
+  <h1>
+    For await of in 2 scenarios
+  </h1>
+  <article>
+    <header>
+      <h2>Click the button and observe what is displayed</h2>
+      There are 3 fake requests - first takes 5s, second 10s and the last 15s
+      <br>
+      <br>
+      <a href="https://github.com/radek-anuszewski/for-await-problems" target="_blank" rel="noreferrer noopener">Check source code on Github</a>
+      <br>
+      <br>
+      <button id="run">Run requests</button>
+    </header>
+    <section>
+      <h3>
+        Output for promises created earlier - because they are created earlier and then put into the list, they run in palarell
+      </h3>
+      <pre id="earlier"></pre>
+    </section>
+    <section>
+      <h3>
+        Output for promises created dynamically, at the moment when they are needed - so second promise will be created when first finishes etc
+      </h3>
+      <pre id="dynamic"></pre>
+    </section>
+  </article>
+</main>
+</body>
+</html>
